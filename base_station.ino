@@ -2,7 +2,7 @@
 #include <Enrf24.h>
 #include <nRF24L01.h>
 #include <string.h>
-#include "dataStructures.h"
+//#include "dataStructures.h"
 #include "helper_rx.h"
 
 int P2_0=17,P2_1=18,P2_2=19,P1_0=29;
@@ -63,16 +63,17 @@ void loop() {
    
    if(dataCount == 10){
     dataCount = 0;
-    Serial.println("======================");
-    Serial.println(document.deviceID);
-    Serial.println(document.timestamp);
+   // Serial.println("======================");
+    //Serial.println(document.deviceID);
+   // Serial.println(document.timestamp);
     for(int i = 0; i<10;i++){
       Serial.println(document.data[i]);
     }
     //TODO: jsonize the document
-    
+    char* string = createJSONMessage(document);  
+    Serial.println(string);
     //TODO : send the json to server   
-
+    
 
 
 

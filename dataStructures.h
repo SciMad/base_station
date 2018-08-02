@@ -1,9 +1,4 @@
 
-typedef struct 
-{
- byte header[1];
- byte message[10];
-}packet;
 
 typedef struct {
  byte red[2];
@@ -39,6 +34,19 @@ struct rx_Bytes{
  };
  
 };
+
+const char jsonfieldName[10][10] = {
+ "longt",
+ "lattd",
+ "PM10",
+ "PM2.5",
+ "C02",
+ "temp",
+ "humidity",
+ "ozone",
+ "JPT",
+ "addr" 
+ };
 
 const char fieldName[10][10] = {
  "____longt",
