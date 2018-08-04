@@ -41,13 +41,11 @@ char *createJSONMessage(node_Data document) {
   aJson.addItemToObject(root, "deviceID", aJson.createItem(
   document.deviceID));
   aJsonObject* fmt = aJson.createObject();
-    aJson.addNumberToObject(root, "TimeStamp", (double)document.timestamp);
-    aJson.addItemToObject(root, "location", fmt);
-    //aJson.addStringToObject(fmt, "name", "bhaktapur");
-    aJson.addNumberToObject(fmt, "longitude", document.data[0]);
-    aJson.addNumberToObject(fmt, "Latitude", document.data[1]);
+    aJson.addNumberToObject(root, "TimeStamp", ( int)document.timestamp/1000); // change was made here
+    aJson.addNumberToObject(root, "longitude", document.data[0]);
+    aJson.addNumberToObject(root, "Latitude", document.data[1]);
 
-    for(int i= 2;i<10;i++){
+    for(int i= 2;i<6;i++){
       aJson.addNumberToObject(root, jsonfieldName[i],document.data[i]);
     }
    char* string = aJson.print(root);

@@ -4,15 +4,19 @@
 #include <string.h>
 //#include "dataStructures.h"
 #include "helper_rx.h"
-
+#include "WifiConfiguration.h"
 int P2_0=17,P2_1=18,P2_2=19,P1_0=29;
 Enrf24 radio(P2_0, P2_1, P2_2);
+
+WiFiClient client;
 
 const uint8_t rxaddr[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0x01 };
 char inbuf[33];
 
 void setup() {
  Serial.begin(9600);
+ initWifi();
+ 
  SPI.begin();
  SPI.setDataMode(SPI_MODE0);
  SPI.setBitOrder(MSBFIRST);
@@ -20,12 +24,11 @@ void setup() {
  radio.begin();  // Defaults 1Mbps, channel 0, max TX power
  //dump_radio_status_to_serialport(radio.radioState());
  radio.setRXaddress((void*)rxaddr);
- 
- pinMode(P1_0, OUTPUT);
- digitalWrite(P1_0, LOW);
+
  
  radio.enableRX();  // Start listening
  Serial.println("listening..");
+
 }
 
 node_Data document;
@@ -36,6 +39,11 @@ int dataCount = 0;
 void loop() {
   
   //dump_radio_status_to_serialport(radio.radioState());  // Should show Receive Mode
+  while (client.available()) {
+    char c = client.read();
+    Serial.write(c);   
+  }
+  
   while (!radio.available(true));
   radio.read(inbuf);
 
@@ -72,21 +80,51 @@ void loop() {
     //TODO: jsonize the document
     char* string = createJSONMessage(document);  
     Serial.println(string);
-    //TODO : send the json to server   
-    
-
-
+      Serial.println("***********");
+    //TODO : send the json to server    
+     makePostRequest(string);
+  // if the server's disconnected, stop the client:
+  if (!client.connected()) {
+    Serial.println();
+    Serial.println("disconnecting from server.");
+    client.stop();
+  }
+  
 
     
     document.timestamp = 0;
-   }
-
-   
-
-   
-
-   
+   }  
 }
+
+void makeGetRequest(char *url){
+  char request[50];
+  sprintf(request,"GET %s HTTP/1.1",url);
+   if (client.connect(server, 80)) {
+    Serial.println("connected to server");
+    // Make a HTTP request:
+    client.println(request);
+    client.println("Host: apm-test.herokuapp.com");
+    client.println("Connection: close");
+    client.println();
+  }
+}
+
+void makePostRequest(char * string){
+
+  if (client.connect(server, 80)){
+    Serial.println("connected to server for POST request");
+    client.println("POST /dev HTTP/1.1");
+    client.println("Host: apm-test.herokuapp.com");
+    client.println("User-Agent: Energia/1.0"); 
+    client.println("Content-Type: application/json");
+    client.print("Content-Length:");
+    client.println(strlen(string));
+    client.println("Connection: close");
+    client.println();
+    client.println(string);
+  }
+}
+
 
 
 
