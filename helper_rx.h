@@ -1,5 +1,5 @@
 
-#include <aJSON.h>
+#include <ArduinoJson.h>
 #include "dataStructures.h"
 
 void dump_radio_status_to_serialport(uint8_t status)
@@ -36,18 +36,18 @@ void dump_radio_status_to_serialport(uint8_t status)
 //  
 //}
 char *createJSONMessage(node_Data document) {
-
-  aJsonObject* root = aJson.createObject();
-  aJson.addItemToObject(root, "deviceID", aJson.createItem(
-  document.deviceID));
-  aJsonObject* fmt = aJson.createObject();
-    aJson.addNumberToObject(root, "TimeStamp", ( int)document.timestamp/1000); // change was made here
-    aJson.addNumberToObject(root, "longitude", document.data[0]);
-    aJson.addNumberToObject(root, "Latitude", document.data[1]);
-
-    for(int i= 2;i<6;i++){
-      aJson.addNumberToObject(root, jsonfieldName[i],document.data[i]);
-    }
-   char* string = aJson.print(root);
-    return string;
+  DynamicJsonBuffer  jsonBuffer(200);
+  JsonObject& root = jsonBuffer.createObject();
+  root["deviceID"] = document.deviceID;
+  root["timestamp"] = document.timestamp;
+  for(int i=0;i<6;i++){
+    root[jsonfieldName[i]] = document.data[i];
+  }
+  String output;
+  root.printTo(output);
+  char* string;
+   string = &output[0];
+  
+  return string;
+  
 }
