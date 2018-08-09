@@ -2,7 +2,6 @@
 #include <Enrf24.h>
 #include <nRF24L01.h>
 #include <string.h>
-//#include "dataStructures.h"
 #include "helper_rx.h"
 #include "WifiConfiguration.h"
 int P2_0=17,P2_1=18,P2_2=19,P1_0=29;
@@ -35,9 +34,19 @@ node_Data document;
 unsigned long lastTimestamp = 0;
 
 int dataCount = 0;
+int totalNodes= 2;
+int channel = 0;
+long int timeInMillis = 0;
 
 void loop() {
-  
+
+  while(1){                                               // main loop of the program
+  timeInMillis = millis();
+  if ((timeInMillis % 10000) == 0){                       //switch channel in every 10 seconds
+    channel++;
+    if (channel > totalNodes - 1) channel = 0;
+    radio.setChannel(channel);
+  }
   //dump_radio_status_to_serialport(radio.radioState());  // Should show Receive Mode
   while (client.available()) {
     char c = client.read();
@@ -93,7 +102,9 @@ void loop() {
 
     
     document.timestamp = 0;
-   }  
+   }
+
+  } // main loop for the program ends here
 }
 
 void makeGetRequest(char *url){
